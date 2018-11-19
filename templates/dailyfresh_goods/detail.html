@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block js %}
+    <script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/static/js/slide.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var total
+            var price
+            var count
+
+            //计算总价函数
+            function total_result() {
+                price = $('.show_pirze').children().html()
+                count = $('.num_show').val()
+                total = price * count + ""
+                total = total.substring(0, total.indexOf(".") + 3)
+                $('.total').children().html(total + '元')
+            }
+
+            //初始化计算总价
+            total_result()
+
+            //自己填写数量计算总价
+            $('.num_show').change(function () {
+                total_result()
+            })
+
+            //数量减
+            $('.minus').click(function () {
+                count = $('.num_show').val()
+                if (count == 1) {
+                    return
+                }
+                $('.num_show').val(parseInt(count) - 1)
+                total_result()
+            })
+
+
+            //数量加
+            $('.add').click(function () {
+                count = $('.num_show').val()
+                $('.num_show').val(parseInt(count) + 1)
+                total_result()
+            })
+
+            //添加购物车操作
+            $('.add_cart').click(function () {
+                var vailidate = $('.login_btn').length
+                if (vailidate = 0) {
+                    window.location.href = '/df_user/login/'
+                }
+                var gid = {{ goods.id }}
+                    $.get('/daily_order/add_cart_' + gid + '_1', function (data) {
+                        alert('成功将' + '{{ goods.gtitle }}' + '添加到购物车,现在有' + data.count + '件商品')
+                        $('#show_count').html(data.count)
+                    })
+            })
+        })
+    </script>
+{% endblock js %}
+{% block content %}
+
+    <div class="navbar_con">
+        <div class="navbar clearfix">
+            <div class="subnav_con fl">
+                <h1>全部商品分类</h1>
+                <span></span>
+                <ul class="subnav">
+                    <li><a href="/daily_goods/list1_1_1/" class="fruit">新鲜水果</a></li>
+                    <li><a href="/daily_goods/list2_1_1/" class="seafood">海鲜水产</a></li>
+                    <li><a href="/daily_goods/list3_1_1/" class="meet">猪牛羊肉</a></li>
+                    <li><a href="/daily_goods/list4_1_1/" class="egg">禽类蛋品</a></li>
+                    <li><a href="/daily_goods/list5_1_1/" class="vegetables">新鲜蔬菜</a></li>
+                    <li><a href="/daily_goods/list6_1_1/" class="ice">速冻食品</a></li>
+                </ul>
+            </div>
+            <ul class="navlist fl">
+                <li><a href="/index/">首页</a></li>
+                <li class="interval">|</li>
+                <li><a href="">手机生鲜</a></li>
+                <li class="interval">|</li>
+                <li><a href="">抽奖</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="breadcrumb">
+        <a href="#">全部分类</a>
+        <span>></span>
+        <a href="#">{{ goods.gtype.tname }}</a>
+        <span>></span>
+        <a href="#">商品详情</a>
+    </div>
+
+    <div class="goods_detail_con clearfix">
+        <div class="goods_detail_pic fl"><img style="width:350px;height:350px;"
+                                              src="/static/{{ goods.gpic }}"></div>
+
+        <div class="goods_detail_list fr">
+            <h3>{{ goods.gtitle }}</h3>
+            <p>{{ goods.gjianjie|slice:'100' }}......</p>
+            <div class="prize_bar">
+                <span class="show_pirze">¥<em>{{ goods.gprice }}</em></span>
+                <span class="show_unit">单  位：{{ goods.gunit }}</span>
+            </div>
+            <div class="goods_num clearfix">
+                <div class="num_name fl">数 量：</div>
+                <div class="num_add fl">
+                    <input type="text" class="num_show fl" value="1">
+                    <a href="javascript:;" class="add fr">+</a>
+                    <a href="javascript:;" class="minus fr">-</a>
+                </div>
+            </div>
+            <div class="total">总价：<em></em></div>
+            <div class="operate_btn">
+                <a href="javascript:;" class="buy_btn">立即购买</a>
+                <a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main_wrap clearfix">
+        <div class="l_wrap fl clearfix">
+            <div class="new_goods">
+                <h3>新品推荐</h3>
+                <ul>
+                    {% for g in new_goods %}
+                        <li>
+                            <a href="/daily_goods/detail/{{ g.id }}"><img src="/static/{{ g.gpic }}"></a>
+                            <h4><a href="#">{{ g.gtitle }}</a></h4>
+                            <div class="prize">￥{{ g.gprice }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="r_wrap fr clearfix">
+            <ul class="detail_tab clearfix">
+                <li class="active">商品介绍</li>
+                <li>评论</li>
+            </ul>
+
+            <div class="tab_content">
+                <dl>
+                    <dt>商品详情：</dt>
+                    <dd>
+                        {{ goods.gcontent|safe }}
+                    </dd>
+                </dl>
+            </div>
+
+        </div>
+    </div>
+{% endblock content %}
+<div class="add_jump"></div>
+
+
+</body>
+</html>
